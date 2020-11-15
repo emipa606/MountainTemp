@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Mountain Temp (Continued)</name>
+  <packageId>Mlie.MountainTemp</packageId>
+  <author>1000101</author>
+  <url>https://github.com/emipa606/MountainTemp</url>
+  <supportedVersions>
+    <li>1.1</li>
+    <li>1.2</li>
+  </supportedVersions>
+  <modDependencies />
+  <loadAfter />
+  <description>[img]https://i.imgur.com/WAEzk68.png[/img]
+Update of 1000101s mod
+https://github.com/ForsakenShell/Es-Small-Mods/tree/master/MountainTemp
+
+[img]https://i.imgur.com/7Gzt3Rg.png[/img]
+
+[table]
+    [tr]
+        [td][url=https://invite.gg/Mlie][img]https://i.imgur.com/zdzzBrc.png[/img][/url][/td]
+        [td][url=https://github.com/emipa606/MountainTemp][img]https://i.imgur.com/kTkpTOE.png[/img][/url][/td]
+    [/tr]
+[/table]
+	
+[img]https://i.imgur.com/NOW7jU1.png[/img]
+Just below the surface of the planet, the rock is a fairly stable temperature. 
+
+This mod stabilizes rooms with any portion of a natural roof to either the seasonal average, annual average or a fixed point temperature (configurable in the settings). 
+The more and thicker the natural roof, the more it will move towards this temperature. 
+Extreme temperatures can still effect rooms deep underground through the passage ways leading to them so don't expect a constant temperature all the time.</description>
+</ModMetaData>
