@@ -138,6 +138,12 @@ namespace esm
                     goto Skip_Room;
                 }
 
+                // Check for embrasures and fences, anything that transfers heat freely
+                if(room.BorderCells.Any(cell => cell.GetCover(map).def.fillPercent < 1))
+                {
+                    goto Skip_Room;
+                }
+
                 /*
                 // Find all heaters contained in the room
                 var heaters = room.AllContainedThings.Where( t =>
