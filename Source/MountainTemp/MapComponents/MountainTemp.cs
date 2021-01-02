@@ -116,165 +116,175 @@ namespace esm
                 //int controlUnits = 0;
 
                 // Open roof?  Not what we want
-                if (room.OpenRoofCount > 0)
+                try
                 {
-                    goto Skip_Room;
-                }
-
-                // Get the cells which are contained in the room
-                var roomCells = room.Cells.ToList();
-
-                // No cells, no want
-                if ((roomCells == null) ||
-                    (roomCells.Count < 1))
-                {
-                    goto Skip_Room;
-                }
-
-                // Make sure the roof is at least partly natural
-                if (!roomCells.Any(
-                    cell => cell.GetRoof(map).isNatural))
-                {
-                    goto Skip_Room;
-                }
-
-                // Check for embrasures and fences, anything that transfers heat freely
-                if(room.BorderCells.Any(cell => cell.GetCover(map).def.fillPercent < 1))
-                {
-                    goto Skip_Room;
-                }
-
-                /*
-                // Find all heaters contained in the room
-                var heaters = room.AllContainedThings.Where( t =>
-                    ( ( t as Building_Heater ) != null ) ).ToList();
-
-                // Does this room have any heaters?
-                if( ( heaters != null )&&
-                    ( heaters.Count > 0 ) ){
-
-                    // If so, are they powered?
-                    foreach( var thing in heaters ){
-
-                        var heater = thing as Building_Heater;
-                        if( heater.compPowerTrader.PowerOn == true ){
-
-                            // Add heater temp to controlled temp
-                            controlledTemp += heater.compTempControl.targetTemperature;
-                            controlUnits++;
-                        }
+                    if (room.OpenRoofCount > 0)
+                    {
+                        goto Skip_Room;
                     }
-                }
 
-                // Does this room have any coolers?
-                if( ( allCoolers != null )&&
-                    ( allCoolers.Count > 0 ) ){
+                    // Get the cells which are contained in the room
+                    var roomCells = room.Cells.ToList();
 
-                    // Check to see if any of the coolers effect this room
-                    foreach( var cooler in allCoolers ){
-                        
-                        if( cooler.compPowerTrader.PowerOn == true ){
+                    // No cells, no want
+                    if ((roomCells == null) ||
+                        (roomCells.Count < 1))
+                    {
+                        goto Skip_Room;
+                    }
 
-                            #if DEBUG
-							//debugDump += "\n\tcooler rotation: " + cooler.Rotation.FacingCell;
-                            
-                            #endif
-                            
-                            // Get heating and cooling sides of the cooler
-                            var cellHeated = cooler.Position + cooler.Rotation.FacingCell;
-                            var cellCooled = cooler.Position - cooler.Rotation.FacingCell;
+                    // Make sure the roof is at least partly natural
+                    if (!roomCells.Any(
+                        cell => cell.GetRoof(map).isNatural))
+                    {
+                        goto Skip_Room;
+                    }
 
-                            // Does either side of the cooler effect this room?
-                            if( cellHeated.GetRoom() == room ){
+                    // Check for embrasures and fences, anything that transfers heat freely
+                    if (room.BorderCells.Any(cell => cell.GetCover(map).def.fillPercent < 1))
+                    {
+                        goto Skip_Room;
+                    }
 
-                                // Substract this temp from controlled temp
-                                controlledTemp -= ( cooler.compTempControl.targetTemperature * 2 );
-                                controlUnits++;
+                    /*
+                    // Find all heaters contained in the room
+                    var heaters = room.AllContainedThings.Where( t =>
+                        ( ( t as Building_Heater ) != null ) ).ToList();
 
-                            } else if( cellCooled.GetRoom() == room ){
+                    // Does this room have any heaters?
+                    if( ( heaters != null )&&
+                        ( heaters.Count > 0 ) ){
 
-                                // Add this temp from the controlled temp
-                                controlledTemp += cooler.compTempControl.targetTemperature;
+                        // If so, are they powered?
+                        foreach( var thing in heaters ){
+
+                            var heater = thing as Building_Heater;
+                            if( heater.compPowerTrader.PowerOn == true ){
+
+                                // Add heater temp to controlled temp
+                                controlledTemp += heater.compTempControl.targetTemperature;
                                 controlUnits++;
                             }
                         }
                     }
-                }
-				*/
 
-                // Create new natural room entry
-                var naturalRoom = new NaturalRoom
-                {
-                    room = room
-                };
+                    // Does this room have any coolers?
+                    if( ( allCoolers != null )&&
+                        ( allCoolers.Count > 0 ) ){
 
-                var roofCount = (float)roomCells.Count;
-                float thickCount = 0;
-                float thinCount = 0;
+                        // Check to see if any of the coolers effect this room
+                        foreach( var cooler in allCoolers ){
 
-                // Count thick roofs
-                foreach (var cell in roomCells)
-                {
-                    var roof = cell.GetRoof(map);
-                    if (roof.isThickRoof)
-                    {
-                        thickCount++;
+                            if( cooler.compPowerTrader.PowerOn == true ){
+
+                                #if DEBUG
+                                //debugDump += "\n\tcooler rotation: " + cooler.Rotation.FacingCell;
+
+                                #endif
+
+                                // Get heating and cooling sides of the cooler
+                                var cellHeated = cooler.Position + cooler.Rotation.FacingCell;
+                                var cellCooled = cooler.Position - cooler.Rotation.FacingCell;
+
+                                // Does either side of the cooler effect this room?
+                                if( cellHeated.GetRoom() == room ){
+
+                                    // Substract this temp from controlled temp
+                                    controlledTemp -= ( cooler.compTempControl.targetTemperature * 2 );
+                                    controlUnits++;
+
+                                } else if( cellCooled.GetRoom() == room ){
+
+                                    // Add this temp from the controlled temp
+                                    controlledTemp += cooler.compTempControl.targetTemperature;
+                                    controlUnits++;
+                                }
+                            }
+                        }
                     }
-                    else if (roof.isNatural)
+                    */
+
+                    // Create new natural room entry
+                    var naturalRoom = new NaturalRoom
                     {
-                        thinCount++;
+                        room = room
+                    };
+
+                    var roofCount = (float)roomCells.Count;
+                    float thickCount = 0;
+                    float thinCount = 0;
+
+                    // Count thick roofs
+                    foreach (var cell in roomCells)
+                    {
+                        var roof = cell.GetRoof(map);
+                        if (roof.isThickRoof)
+                        {
+                            thickCount++;
+                        }
+                        else if (roof.isNatural)
+                        {
+                            thinCount++;
+                        }
                     }
-                }
 
-                // Now calculate percent of roof that is thick/thin/constructed
-                var thickFactor = thickCount / roofCount;
-                var thinFactor = thinCount / roofCount;
-                var roofedFactor = 1.0f - thickFactor - thinFactor;
-                if (roofedFactor < 0f)
-                {
-                    // Handle rounding errors
-                    roofedFactor = 0f;
-                }
+                    // Now calculate percent of roof that is thick/thin/constructed
+                    var thickFactor = thickCount / roofCount;
+                    var thinFactor = thinCount / roofCount;
+                    var roofedFactor = 1.0f - thickFactor - thinFactor;
+                    if (roofedFactor < 0f)
+                    {
+                        // Handle rounding errors
+                        roofedFactor = 0f;
+                    }
 
-                // Factor for pushing heat
-                naturalRoom.naturalEqualizationFactor = thickFactor + (thinFactor * 0.5f);
+                    // Factor for pushing heat
+                    naturalRoom.naturalEqualizationFactor = thickFactor + (thinFactor * 0.5f);
 
-                // Calculate new temp based on roof factors
-                var thickRate = thickFactor * TargetTemperature;
-                var thinRate = thinFactor * (outdoorTemp - TargetTemperature) * 0.25f;
-                //float roofedRate = roofedFactor * ( outdoorTemp - UNDERGROUND_TEMPERATURE ) * 0.5f;
+                    // Calculate new temp based on roof factors
+                    var thickRate = thickFactor * TargetTemperature;
+                    var thinRate = thinFactor * (outdoorTemp - TargetTemperature) * 0.25f;
+                    //float roofedRate = roofedFactor * ( outdoorTemp - UNDERGROUND_TEMPERATURE ) * 0.5f;
 
-                // Assign the natural temp based on aggregate ratings
-                //naturalRoom.naturalTemp = thickFactor * UNDERGROUND_TEMPERATURE +
-                //    ( 1.0f - thickFactor ) * outdoorTemp;
-                naturalRoom.naturalTemp = thickRate + thinRate;// + roofedRate;
+                    // Assign the natural temp based on aggregate ratings
+                    //naturalRoom.naturalTemp = thickFactor * UNDERGROUND_TEMPERATURE +
+                    //    ( 1.0f - thickFactor ) * outdoorTemp;
+                    naturalRoom.naturalTemp = thickRate + thinRate;// + roofedRate;
 
-                // Compute average controlled temperature for room
-                /*
-				if( controlUnits == 0 ){
-                    naturalRoom.controlledTemp = INVALID_CONTROL_TEMP;
-                } else {
-                    naturalRoom.controlledTemp = (int)( controlledTemp / controlUnits );
-                }
-                */
+                    // Compute average controlled temperature for room
+                    /*
+                    if( controlUnits == 0 ){
+                        naturalRoom.controlledTemp = INVALID_CONTROL_TEMP;
+                    } else {
+                        naturalRoom.controlledTemp = (int)( controlledTemp / controlUnits );
+                    }
+                    */
 
 #if DEBUG
-                /*
-				debugDump += "\n\tID: " + room.ID +
-                    "\n\t\troomCells.Count: " + roomCells.Count +
-                    "\n\t\troofCount: " + roofCount +
-					"\n\t\tCount thick/thin/man: " + thickCount + "/" + thinCount + "/" + ( roofCount - thickCount - thinCount ) +
-                    "\n\t\tFactor thick/thin/man: " + thickFactor + "/" + thinFactor + "/" + roofedFactor +
-					"\n\t\tRate thick/thin/man: " + thickRate + "/" + thinRate + "/" + roofedRate +
-					"\n\t\toutside.Temperature: " + outdoorTemp +
-                    "\n\t\troom.Temperature: " + naturalRoom.room.Temperature +
-                    "\n\t\tcontrolledTemp: " + naturalRoom.controlledTemp +
-                    "\n\t\tdesiredTemp: " + naturalRoom.naturalTemp;
-                */
+                    /*
+                    debugDump += "\n\tID: " + room.ID +
+                        "\n\t\troomCells.Count: " + roomCells.Count +
+                        "\n\t\troofCount: " + roofCount +
+                        "\n\t\tCount thick/thin/man: " + thickCount + "/" + thinCount + "/" + ( roofCount - thickCount - thinCount ) +
+                        "\n\t\tFactor thick/thin/man: " + thickFactor + "/" + thinFactor + "/" + roofedFactor +
+                        "\n\t\tRate thick/thin/man: " + thickRate + "/" + thinRate + "/" + roofedRate +
+                        "\n\t\toutside.Temperature: " + outdoorTemp +
+                        "\n\t\troom.Temperature: " + naturalRoom.room.Temperature +
+                        "\n\t\tcontrolledTemp: " + naturalRoom.controlledTemp +
+                        "\n\t\tdesiredTemp: " + naturalRoom.naturalTemp;
+                    */
 #endif
 
-                // Add the natural room to the list
-                NaturalRooms.Add(naturalRoom);
+                    // Add the natural room to the list
+                    NaturalRooms.Add(naturalRoom);
+                }
+                catch (Exception exception)
+                {
+#if DEBUG
+                    debugDump += $"Got exception for room: {exception}";
+#endif
+                    goto Skip_Room;
+                }
 
             Skip_Room:;
                 // We skipped this room, need to do it this way because
