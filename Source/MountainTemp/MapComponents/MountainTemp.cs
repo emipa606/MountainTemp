@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿//#define DEBUG
+using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ using UnityEngine;
 
 namespace esm
 {
-
     public struct NaturalRoom
     {
         public Room room;
@@ -51,7 +51,7 @@ namespace esm
         {
             get
             {
-                switch (LoadedModManager.GetMod<MCM_MountainTempMod>().GetSettings< MCM_MountainTempModSettings>().TargetMode)
+                switch (LoadedModManager.GetMod<MCM_MountainTempMod>().GetSettings<MCM_MountainTempModSettings>().TargetMode)
                 {
                     case MCM_MountainTempModSettings.TemperatureMode.Fixed:
                         return LoadedModManager.GetMod<MCM_MountainTempMod>().GetSettings<MCM_MountainTempModSettings>().FixedTarget;
@@ -88,8 +88,7 @@ namespace esm
             List<Room> allRooms = map.regionGrid.allRooms;
 
             // No rooms to check, abort now
-            if ((allRooms == null) ||
-                (allRooms.Count < 1))
+            if ((allRooms == null) || (allRooms.Count < 1))
             {
                 return;
             }
@@ -98,11 +97,11 @@ namespace esm
             var outdoorTemp = GenTemperature.GetTemperatureAtTile(map.Tile);
 
 #if DEBUG
-            /*
+
             var debugDump = "FetchNaturalRooms:" +
                 "\n\toutdoorTemp: " + outdoorTemp +
                 "\n\tallRooms.Count: " + allRooms.Count;
-            */
+
 #endif
 
             // Find all the coolers in the world
@@ -313,7 +312,7 @@ namespace esm
             FetchNaturalRooms();
 
             // No rooms, nothing to do
-            if (NaturalRooms.Count < 1)
+            if (NaturalRooms == null || NaturalRooms.Count < 1)
             {
                 return;
             }
