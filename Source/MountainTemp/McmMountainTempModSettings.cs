@@ -1,20 +1,18 @@
-﻿using System;
-using Verse;
-using UnityEngine;
+﻿using Verse;
 
-namespace esm
+namespace esm.ModConfigurationMenus
 {
-    internal class MCM_MountainTempModSettings : ModSettings
+    internal class McmMountainTempModSettings : ModSettings
     {
-        public TemperatureMode TargetMode = TemperatureMode.Annual;
-        public float FixedTarget = 10.0f;
-
         public enum TemperatureMode
         {
             Fixed,
             Seasonal,
             Annual
         }
+
+        public float FixedTarget = 10.0f;
+        public TemperatureMode TargetMode = TemperatureMode.Annual;
 
         public override void ExposeData()
         {
@@ -23,5 +21,4 @@ namespace esm
             Scribe_Values.Look(ref FixedTarget, "FixedTarget", 10.0f, true);
         }
     }
-
 }

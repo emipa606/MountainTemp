@@ -1,40 +1,74 @@
 ﻿//#define DEBUG
-using RimWorld;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using Verse;
+using esm.ModConfigurationMenus;
+using JetBrains.Annotations;
 using UnityEngine;
+using Verse;
 
-namespace esm
+namespace esm.MapComponents
 {
     public struct NaturalRoom
     {
-        public Room room;
-        public float naturalEqualizationFactor;
-        public float naturalTemp;
+        public Room Room;
+        public float NaturalEqualizationFactor;
+
+        public float NaturalTemp;
         //public int controlledTemp;
     }
 
     [StaticConstructorOnStartup]
+    [UsedImplicitly]
     public class MountainTemp : MapComponent
     {
-
         // Constant underground temperature
         //public const float UNDERGROUND_TEMPERATURE = 0.0f;
 
         // Constant delta for setting temp
-        public const float TEMPERATURE_DELTA = 0.49f;
+        private const float TemperatureDelta = 0.49f;
 
         // Constant equalization factor
-        public const float EQUALIZATION_FACTOR = 120.0f * 90.0f * 6f;
+        private const float EqualizationFactor = 120.0f * 90.0f * 6f;
 
         // Constant invalid control temp (no active temperature controllers)
-        public const int INVALID_CONTROL_TEMP = -999999;
+        //public const int InvalidControlTemp = -999999;
 
         // Ticks between updates
-        public const int UPDATE_TICKS = 60;
+        private const int UpdateTicks = 60;
+
+        // This will house all the rooms in the world which have
+        // natural roofs
+        private List<NaturalRoom> naturalRooms = new List<NaturalRoom>();
+
+        public MountainTemp(Map map) : base(map)
+        {
+        }
+
+        // Target underground temperature
+        private float TargetTemperature
+        {
+            get
+            {
+                switch (LoadedModManager.GetMod<McmMountainTempMod>().GetSettings<McmMountainTempModSettings>()
+                    .TargetMode)
+                {
+                    case McmMountainTempModSettings.TemperatureMode.Fixed:
+                        return LoadedModManager.GetMod<McmMountainTempMod>().GetSettings<McmMountainTempModSettings>()
+                            .FixedTarget;
+
+                    case McmMountainTempModSettings.TemperatureMode.Seasonal:
+                        return SeasonalAverage(map);
+
+                    case McmMountainTempModSettings.TemperatureMode.Annual:
+                        return AnnualAverage(map);
+
+                    default:
+                        throw new Exception("MountainTemp :: Invalid temperature target mode");
+                }
+            }
+        }
 
         public static float SeasonalAverage(Map map)
         {
@@ -46,49 +80,19 @@ namespace esm
             return Find.WorldGrid[map.Tile].temperature;
         }
 
-        // Target underground temperature
-        public float TargetTemperature
-        {
-            get
-            {
-                switch (LoadedModManager.GetMod<MCM_MountainTempMod>().GetSettings<MCM_MountainTempModSettings>().TargetMode)
-                {
-                    case MCM_MountainTempModSettings.TemperatureMode.Fixed:
-                        return LoadedModManager.GetMod<MCM_MountainTempMod>().GetSettings<MCM_MountainTempModSettings>().FixedTarget;
-
-                    case MCM_MountainTempModSettings.TemperatureMode.Seasonal:
-                        return SeasonalAverage(map);
-
-                    case MCM_MountainTempModSettings.TemperatureMode.Annual:
-                        return AnnualAverage(map);
-
-                    default:
-                        throw new Exception("MountainTemp :: Invalid temperature target mode");
-                }
-            }
-        }
-
-        // This will house all the rooms in the world which have
-        // natural roofs
-        List<NaturalRoom> NaturalRooms = new List<NaturalRoom>();
-
-        public MountainTemp(Map map) : base(map)
-        {
-        }
-
         /// <summary>
-        /// Fetchs the mountain rooms with thick roofs and no heating/cooling devices.
+        ///     Fetch the mountain rooms with thick roofs and no heating/cooling devices.
         /// </summary>
-        void FetchNaturalRooms()
+        private void FetchNaturalRooms()
         {
             // Clear our list of natural rooms
-            NaturalRooms = new List<NaturalRoom>();
+            naturalRooms = new List<NaturalRoom>();
 
             // Get the list of rooms from the region grid
-            List<Room> allRooms = map.regionGrid.allRooms;
+            var allRooms = map.regionGrid.allRooms;
 
             // No rooms to check, abort now
-            if ((allRooms == null) || (allRooms.Count < 1))
+            if (allRooms == null || allRooms.Count < 1)
             {
                 return;
             }
@@ -97,7 +101,6 @@ namespace esm
             var outdoorTemp = GenTemperature.GetTemperatureAtTile(map.Tile);
 
 #if DEBUG
-
             var debugDump = "FetchNaturalRooms:" +
                 "\n\toutdoorTemp: " + outdoorTemp +
                 "\n\tallRooms.Count: " + allRooms.Count;
@@ -107,10 +110,9 @@ namespace esm
             // Find all the coolers in the world
             //var allCoolers = Find.ListerBuildings.AllBuildingsColonistOfClass<Building_Cooler>().ToList();
 
-            // Itterate the rooms
+            // Iterate the rooms
             foreach (var room in allRooms)
             {
-
                 //float controlledTemp = 0f;
                 //int controlUnits = 0;
 
@@ -126,8 +128,8 @@ namespace esm
                     var roomCells = room.Cells.ToList();
 
                     // No cells, no want
-                    if ((roomCells == null) ||
-                        (roomCells.Count < 1))
+                    if (roomCells == null ||
+                        roomCells.Count < 1)
                     {
                         goto Skip_Room;
                     }
@@ -188,7 +190,7 @@ namespace esm
                                 // Does either side of the cooler effect this room?
                                 if( cellHeated.GetRoom() == room ){
 
-                                    // Substract this temp from controlled temp
+                                    // Subtract this temp from controlled temp
                                     controlledTemp -= ( cooler.compTempControl.targetTemperature * 2 );
                                     controlUnits++;
 
@@ -206,10 +208,10 @@ namespace esm
                     // Create new natural room entry
                     var naturalRoom = new NaturalRoom
                     {
-                        room = room
+                        Room = room
                     };
 
-                    var roofCount = (float)roomCells.Count;
+                    var roofCount = (float) roomCells.Count;
                     float thickCount = 0;
                     float thinCount = 0;
 
@@ -230,15 +232,15 @@ namespace esm
                     // Now calculate percent of roof that is thick/thin/constructed
                     var thickFactor = thickCount / roofCount;
                     var thinFactor = thinCount / roofCount;
-                    var roofedFactor = 1.0f - thickFactor - thinFactor;
-                    if (roofedFactor < 0f)
-                    {
-                        // Handle rounding errors
-                        roofedFactor = 0f;
-                    }
+                    //var roofedFactor = 1.0f - thickFactor - thinFactor;
+                    //if (roofedFactor < 0f)
+                    //    // Handle rounding errors
+                    //{
+                    //    roofedFactor = 0f;
+                    //}
 
                     // Factor for pushing heat
-                    naturalRoom.naturalEqualizationFactor = thickFactor + (thinFactor * 0.5f);
+                    naturalRoom.NaturalEqualizationFactor = thickFactor + (thinFactor * 0.5f);
 
                     // Calculate new temp based on roof factors
                     var thickRate = thickFactor * TargetTemperature;
@@ -248,7 +250,7 @@ namespace esm
                     // Assign the natural temp based on aggregate ratings
                     //naturalRoom.naturalTemp = thickFactor * UNDERGROUND_TEMPERATURE +
                     //    ( 1.0f - thickFactor ) * outdoorTemp;
-                    naturalRoom.naturalTemp = thickRate + thinRate;// + roofedRate;
+                    naturalRoom.NaturalTemp = thickRate + thinRate; // + roofedRate;
 
                     // Compute average controlled temperature for room
                     /*
@@ -275,17 +277,17 @@ namespace esm
 #endif
 
                     // Add the natural room to the list
-                    NaturalRooms.Add(naturalRoom);
+                    naturalRooms.Add(naturalRoom);
                 }
-                catch (Exception exception)
+                catch (Exception)
                 {
+                    // Exception only used in debug
 #if DEBUG
                     debugDump += $"Got exception for room: {exception}";
 #endif
-                    goto Skip_Room;
                 }
 
-            Skip_Room:;
+                Skip_Room: ;
                 // We skipped this room, need to do it this way because
                 // using 'continue' in the controller loops will
                 // continue the controller loops and not the room loop
@@ -298,12 +300,12 @@ namespace esm
         }
 
         /// <summary>
-        /// Map tick for component
+        ///     Map tick for component
         /// </summary>
         public override void MapComponentTick()
         {
             // Only do this once every update ticks
-            if ((Find.TickManager.TicksGame % UPDATE_TICKS) != 0)
+            if (Find.TickManager.TicksGame % UpdateTicks != 0)
             {
                 return;
             }
@@ -312,16 +314,16 @@ namespace esm
             FetchNaturalRooms();
 
             // No rooms, nothing to do
-            if (NaturalRooms == null || NaturalRooms.Count < 1)
+            if (naturalRooms == null || naturalRooms.Count < 1)
             {
                 return;
             }
 
             // Go through rooms and set the temperature
-            foreach (var naturalRoom in NaturalRooms)
+            foreach (var naturalRoom in naturalRooms)
             {
-                var equalizationRate = naturalRoom.naturalEqualizationFactor;
-                var targetTemp = naturalRoom.naturalTemp;
+                var equalizationRate = naturalRoom.NaturalEqualizationFactor;
+                var targetTemp = naturalRoom.NaturalTemp;
 
                 /*
                 if( naturalRoom.controlledTemp != INVALID_CONTROL_TEMP ){
@@ -345,43 +347,43 @@ namespace esm
                 */
 
                 // Move the room towards the desired temp
-                var tempDelta = Mathf.Abs(naturalRoom.room.Temperature - targetTemp);
+                var tempDelta = Mathf.Abs(naturalRoom.Room.Temperature - targetTemp);
 
-                if (tempDelta > TEMPERATURE_DELTA)
-                {
+                if (tempDelta > TemperatureDelta)
                     // Difference is too large, move it
-                    EqualizeTemperature(naturalRoom.room, targetTemp, equalizationRate);
+                {
+                    EqualizeTemperature(naturalRoom.Room, targetTemp, equalizationRate);
                 }
                 else
-                {
-                    // Difference is within tollerance, set it
+                    // Difference is within tolerance, set it
 
-                    naturalRoom.room.Group.Temperature = targetTemp;
+                {
+                    naturalRoom.Room.Temperature = targetTemp;
                 }
             }
         }
 
         /// <summary>
-        /// Equalizes the temperature of the room.
+        ///     Equalizes the temperature of the room.
         /// </summary>
         /// <param name="room">Room.</param>
         /// <param name="destTemp">Destination temp.</param>
-        public void EqualizeTemperature(Room room, float destTemp, float equalizationRate)
+        /// <param name="equalizationRate"></param>
+        private void EqualizeTemperature(Room room, float destTemp, float equalizationRate)
         {
             // Temperature delta
             var delta = Mathf.Abs(room.Temperature - destTemp);
             // Movement delta
             var movement = Mathf.Min(
-                (float)(delta >= 100.0f ? (float)(((double)0.000300000014249235 * (double)delta) - (double)0.025000000372529) : 5E-05f * delta) *
+                (delta >= 100.0f ? (float) ((0.000300000014249235 * delta) - 0.025000000372529) : 5E-05f * delta) *
                 (0.22f * Mathf.Pow(room.CellCount, 0.33f)),
                 delta);
             // Change delta
-            var change = (destTemp > room.Temperature ? movement : -movement) * (EQUALIZATION_FACTOR * equalizationRate) / room.CellCount;
+            var change = (destTemp > room.Temperature ? movement : -movement) *
+                (EqualizationFactor * equalizationRate) / room.CellCount;
             // Push some heat
             //room.PushHeat( change );
-            room.Group.Temperature += change;
+            room.Temperature += change;
         }
-
     }
-
 }
