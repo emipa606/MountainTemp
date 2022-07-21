@@ -6,5 +6,7 @@
   <MountainTempMCMFixed>Fixed</MountainTempMCMFixed>
   <MountainTempMCMSeasonal>Seasonal</MountainTempMCMSeasonal>
   <MountainTempMCMAnnual>Annual</MountainTempMCMAnnual>
+  <MountainTempMCMUpdateSpeed>Update speed: {0} ticks between updates. (default 60)</MountainTempMCMUpdateSpeed>
+  <MountainTempMCMVersion>Installed mod-version: {0}</MountainTempMCMVersion>
   <MountainTempMCMSlider>Temp {0}</MountainTempMCMSlider>
 </LanguageData>

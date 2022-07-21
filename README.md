@@ -1,33 +1,24 @@
 # MountainTemp
 
-![Image](https://i.imgur.com/WAEzk68.png)
+![Image](https://i.imgur.com/buuPQel.png)
 
 Update of 1000101s mod
 https://github.com/ForsakenShell/Es-Small-Mods/tree/master/MountainTemp
 
 - Now ignores rooms defined by embrasures/fences
 
-![Image](https://i.imgur.com/7Gzt3Rg.png)
+![Image](https://i.imgur.com/pufA0kM.png)
 
-
-[table]
-    [tr]
-        [td]https://invite.gg/Mlie]![Image](https://i.imgur.com/zdzzBrc.png)
-[/td]
-        [td]https://github.com/emipa606/MountainTemp]![Image](https://i.imgur.com/kTkpTOE.png)
-[/td]
-    [/tr]
-[/table]
 	
-![Image](https://i.imgur.com/NOW7jU1.png)
+![Image](https://i.imgur.com/Z4GOv8H.png)
 
 Just below the surface of the planet, the rock is a fairly stable temperature. 
 
 This mod stabilizes rooms with any portion of a natural roof to either the seasonal average, annual average or a fixed point temperature (configurable in the settings). 
 The more and thicker the natural roof, the more it will move towards this temperature. 
-Extreme temperatures can still effect rooms deep underground through the passage ways leading to them so don&apos;t expect a constant temperature all the time.
+Extreme temperatures can still effect rooms deep underground through the passage ways leading to them so don't expect a constant temperature all the time.
 
-![Image](https://i.imgur.com/Rs6T6cr.png)
+![Image](https://i.imgur.com/PwoNOj4.png)
 
 
 
