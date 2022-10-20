@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using esm.ModConfigurationMenus;
-using JetBrains.Annotations;
 using UnityEngine;
 using Verse;
 
@@ -20,7 +19,6 @@ public struct NaturalRoom
 }
 
 [StaticConstructorOnStartup]
-[UsedImplicitly]
 public class MountainTemp : MapComponent
 {
     // Constant underground temperature

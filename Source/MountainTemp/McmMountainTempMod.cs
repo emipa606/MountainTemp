@@ -1,6 +1,5 @@
 ﻿using System;
 using esm.MapComponents;
-using JetBrains.Annotations;
 using Mlie;
 using RimWorld;
 using UnityEngine;
@@ -47,7 +46,7 @@ public class McmMountainTempMod : Mod
 
             return settings;
         }
-        [UsedImplicitly] set => settings = value;
+        set => settings = value;
     }
 
     public override string SettingsCategory()

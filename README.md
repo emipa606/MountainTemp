@@ -6,6 +6,7 @@ Update of 1000101s mod
 https://github.com/ForsakenShell/Es-Small-Mods/tree/master/MountainTemp
 
 - Now ignores rooms defined by embrasures/fences
+- Added setting for update-speed
 
 ![Image](https://i.imgur.com/pufA0kM.png)
 
