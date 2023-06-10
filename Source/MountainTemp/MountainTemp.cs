@@ -30,6 +30,8 @@ public class MountainTemp : MapComponent
     // Constant equalization factor
     private const float EqualizationFactor = 120.0f * 90.0f * 6f;
 
+    private readonly bool enabled;
+
     // Constant invalid control temp (no active temperature controllers)
     //public const int InvalidControlTemp = -999999;
 
@@ -39,6 +41,7 @@ public class MountainTemp : MapComponent
 
     public MountainTemp(Map map) : base(map)
     {
+        enabled = map.Biome.defName != "BMT_EarthenDepths";
     }
 
     // Target underground temperature
@@ -296,6 +299,11 @@ public class MountainTemp : MapComponent
     /// </summary>
     public override void MapComponentTick()
     {
+        if (!enabled)
+        {
+            return;
+        }
+
         // Only do this once every update ticks
         if (Find.TickManager.TicksGame % McmMountainTempMod.instance.Settings.UpdateTicks != 0)
         {

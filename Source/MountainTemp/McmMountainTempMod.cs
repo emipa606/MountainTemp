@@ -18,42 +18,26 @@ public class McmMountainTempMod : Mod
 
     public static McmMountainTempMod instance;
     private static string currentVersion;
-    private string intBuffer;
 
     /// <summary>
     ///     The private settings
     /// </summary>
-    private McmMountainTempModSettings settings;
+    public readonly McmMountainTempModSettings Settings;
+
+    private string intBuffer;
 
     public McmMountainTempMod(ModContentPack content) : base(content)
     {
         instance = this;
         currentVersion =
-            VersionFromManifest.GetVersionFromModMetaData(ModLister.GetActiveModWithIdentifier("Mlie.MountainTemp"));
-    }
-
-    /// <summary>
-    ///     The instance-settings for the mod
-    /// </summary>
-    public McmMountainTempModSettings Settings
-    {
-        get
-        {
-            if (settings == null)
-            {
-                settings = GetSettings<McmMountainTempModSettings>();
-            }
-
-            return settings;
-        }
-        set => settings = value;
+            VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
+        Settings = GetSettings<McmMountainTempModSettings>();
     }
 
     public override string SettingsCategory()
     {
         return "Mountain Temp";
     }
-
 
     public override void DoSettingsWindowContents(Rect rect)
     {
