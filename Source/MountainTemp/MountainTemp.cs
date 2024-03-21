@@ -19,7 +19,7 @@ public struct NaturalRoom
 }
 
 [StaticConstructorOnStartup]
-public class MountainTemp : MapComponent
+public class MountainTemp(Map map) : MapComponent(map)
 {
     // Constant underground temperature
     //public const float UNDERGROUND_TEMPERATURE = 0.0f;
@@ -30,19 +30,14 @@ public class MountainTemp : MapComponent
     // Constant equalization factor
     private const float EqualizationFactor = 120.0f * 90.0f * 6f;
 
-    private readonly bool enabled;
+    private readonly bool enabled = map.Biome.defName != "BMT_EarthenDepths";
 
     // Constant invalid control temp (no active temperature controllers)
     //public const int InvalidControlTemp = -999999;
 
     // This will house all the rooms in the world which have
     // natural roofs
-    private List<NaturalRoom> naturalRooms = new List<NaturalRoom>();
-
-    public MountainTemp(Map map) : base(map)
-    {
-        enabled = map.Biome.defName != "BMT_EarthenDepths";
-    }
+    private List<NaturalRoom> naturalRooms = [];
 
     // Target underground temperature
     private float TargetTemperature
@@ -82,7 +77,7 @@ public class MountainTemp : MapComponent
     private void FetchNaturalRooms()
     {
         // Clear our list of natural rooms
-        naturalRooms = new List<NaturalRoom>();
+        naturalRooms = [];
 
         // Get the list of rooms from the region grid
         var allRooms = map.regionGrid.allRooms;
