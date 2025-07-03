@@ -2,5 +2,16 @@
   "Continued": true,
   "CanAdd": "0",
   "CanRemove": "0",
-  "PreviewVersion": "1.5"
+  "PreviewVersion": "1.6",
+  "LastXmlCleaning": "2025-07-03T19:27:57.7874462+02:00",
+  "SocialImageSet": true,
+  "Patches": false,
+  "Defs": false,
+  "Assemblies": true,
+  "LinesOfCode": 20404.0,
+  "LinesOfXML": 0,
+  "SearchTags": [
+    "temperature",
+    " stability"
+  ]
 }

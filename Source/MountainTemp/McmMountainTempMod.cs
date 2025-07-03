@@ -50,7 +50,7 @@ public class McmMountainTempMod : Mod
             40,
             rect.width,
             descriptionHeight);
-        DoLabel(
+        doLabel(
             descriptionRect,
             descriptionLabel
         );
@@ -60,7 +60,7 @@ public class McmMountainTempMod : Mod
             descriptionRect.y + descriptionRect.height + EntrySize,
             rect.width,
             EntrySize);
-        DoLabel(
+        doLabel(
             targetRect,
             "MountainTempMCMTarget".Translate()
         );
@@ -71,7 +71,7 @@ public class McmMountainTempMod : Mod
             targetRect.y + targetRect.height + InnerPadding,
             rect.width,
             EntrySize);
-        DoRadio(
+        doRadio(
             fixedRect,
             ref radioBool,
             "MountainTempMCMFixed");
@@ -88,14 +88,14 @@ public class McmMountainTempMod : Mod
             fixedRect.y + fixedRect.height + InnerPadding,
             rect.width,
             EntrySize * 2);
-        DoSlider(
+        doSlider(
             tempRect,
             ref sliderValue,
             "MountainTempMCMSlider",
             sliderMin,
             sliderMax
         );
-        Settings.FixedTarget = CelsiusFrom(sliderValue, Prefs.TemperatureMode);
+        Settings.FixedTarget = celsiusFrom(sliderValue, Prefs.TemperatureMode);
 
         radioBool = Settings.TargetMode == McmMountainTempModSettings.TemperatureMode.Seasonal;
         var tempStr = Current.ProgramState == ProgramState.Playing
@@ -106,7 +106,7 @@ public class McmMountainTempMod : Mod
             tempRect.y + tempRect.height + EntrySize,
             rect.width,
             EntrySize);
-        DoRadio(
+        doRadio(
             seasonalRect,
             ref radioBool,
             "MountainTempMCMSeasonal",
@@ -125,7 +125,7 @@ public class McmMountainTempMod : Mod
             seasonalRect.y + seasonalRect.height + InnerPadding,
             rect.width,
             EntrySize * 2);
-        DoRadio(
+        doRadio(
             annualRect,
             ref radioBool,
             "MountainTempMCMAnnual",
@@ -170,7 +170,7 @@ public class McmMountainTempMod : Mod
         Settings.Write();
     }
 
-    private static float CelsiusFrom(float temp, TemperatureDisplayMode oldMode)
+    private static float celsiusFrom(float temp, TemperatureDisplayMode oldMode)
     {
         switch (oldMode)
         {
@@ -185,7 +185,7 @@ public class McmMountainTempMod : Mod
         }
     }
 
-    private void DoRadio(Rect rect, ref bool value, string labelKey, string temp = "")
+    private static void doRadio(Rect rect, ref bool value, string labelKey, string temp = "")
     {
         var originalFont = Text.Font;
         var originalAnchor = Text.Anchor;
@@ -231,7 +231,7 @@ public class McmMountainTempMod : Mod
         Text.Font = originalFont;
     }
 
-    private void DoSlider(Rect rect, ref float value, string labelKey, float min, float max,
+    private static void doSlider(Rect rect, ref float value, string labelKey, float min, float max,
         float setMax = float.MinValue, float setMin = float.MaxValue)
     {
         var originalFont = Text.Font;
@@ -286,7 +286,7 @@ public class McmMountainTempMod : Mod
         Text.Font = originalFont;
     }
 
-    private void DoLabel(Rect rect, string label)
+    private static void doLabel(Rect rect, string label)
     {
         var originalFont = Text.Font;
         var originalAnchor = Text.Anchor;

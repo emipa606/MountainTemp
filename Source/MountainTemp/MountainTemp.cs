@@ -19,7 +19,7 @@ public struct NaturalRoom
 }
 
 [StaticConstructorOnStartup]
-public class MountainTemp(Map map) : MapComponent(map)
+public abstract class MountainTemp(Map map) : MapComponent(map)
 {
     // Constant underground temperature
     //public const float UNDERGROUND_TEMPERATURE = 0.0f;
@@ -74,13 +74,13 @@ public class MountainTemp(Map map) : MapComponent(map)
     /// <summary>
     ///     Fetch the mountain rooms with thick roofs and no heating/cooling devices.
     /// </summary>
-    private void FetchNaturalRooms()
+    private void fetchNaturalRooms()
     {
         // Clear our list of natural rooms
         naturalRooms = [];
 
         // Get the list of rooms from the region grid
-        var allRooms = map.regionGrid.allRooms;
+        var allRooms = map.regionGrid.AllRooms;
 
         // No rooms to check, abort now
         if (allRooms == null || allRooms.Count < 1)
@@ -125,8 +125,7 @@ public class MountainTemp(Map map) : MapComponent(map)
                 }
 
                 // Make sure the roof is at least partly natural
-                if (!roomCells.Any(
-                        cell => cell.GetRoof(map).isNatural))
+                if (!roomCells.Any(cell => cell.GetRoof(map).isNatural))
                 {
                     goto Skip_Room;
                 }
@@ -136,64 +135,6 @@ public class MountainTemp(Map map) : MapComponent(map)
                 {
                     goto Skip_Room;
                 }
-
-                /*
-                // Find all heaters contained in the room
-                var heaters = room.AllContainedThings.Where( t =>
-                    ( ( t as Building_Heater ) != null ) ).ToList();
-
-                // Does this room have any heaters?
-                if( ( heaters != null )&&
-                    ( heaters.Count > 0 ) ){
-
-                    // If so, are they powered?
-                    foreach( var thing in heaters ){
-
-                        var heater = thing as Building_Heater;
-                        if( heater.compPowerTrader.PowerOn == true ){
-
-                            // Add heater temp to controlled temp
-                            controlledTemp += heater.compTempControl.targetTemperature;
-                            controlUnits++;
-                        }
-                    }
-                }
-
-                // Does this room have any coolers?
-                if( ( allCoolers != null )&&
-                    ( allCoolers.Count > 0 ) ){
-
-                    // Check to see if any of the coolers effect this room
-                    foreach( var cooler in allCoolers ){
-
-                        if( cooler.compPowerTrader.PowerOn == true ){
-
-                            #if DEBUG
-                            //debugDump += "\n\tcooler rotation: " + cooler.Rotation.FacingCell;
-
-                            #endif
-
-                            // Get heating and cooling sides of the cooler
-                            var cellHeated = cooler.Position + cooler.Rotation.FacingCell;
-                            var cellCooled = cooler.Position - cooler.Rotation.FacingCell;
-
-                            // Does either side of the cooler effect this room?
-                            if( cellHeated.GetRoom() == room ){
-
-                                // Subtract this temp from controlled temp
-                                controlledTemp -= ( cooler.compTempControl.targetTemperature * 2 );
-                                controlUnits++;
-
-                            } else if( cellCooled.GetRoom() == room ){
-
-                                // Add this temp from the controlled temp
-                                controlledTemp += cooler.compTempControl.targetTemperature;
-                                controlUnits++;
-                            }
-                        }
-                    }
-                }
-                */
 
                 // Create new natural room entry
                 var naturalRoom = new NaturalRoom
@@ -241,15 +182,6 @@ public class MountainTemp(Map map) : MapComponent(map)
                 //naturalRoom.naturalTemp = thickFactor * UNDERGROUND_TEMPERATURE +
                 //    ( 1.0f - thickFactor ) * outdoorTemp;
                 naturalRoom.NaturalTemp = thickRate + thinRate; // + roofedRate;
-
-                // Compute average controlled temperature for room
-                /*
-                if( controlUnits == 0 ){
-                    naturalRoom.controlledTemp = INVALID_CONTROL_TEMP;
-                } else {
-                    naturalRoom.controlledTemp = (int)( controlledTemp / controlUnits );
-                }
-                */
 
 #if DEBUG
                     /*
@@ -306,7 +238,7 @@ public class MountainTemp(Map map) : MapComponent(map)
         }
 
         // Get the all the natural rooms in the world
-        FetchNaturalRooms();
+        fetchNaturalRooms();
 
         // No rooms, nothing to do
         if (naturalRooms == null || naturalRooms.Count < 1)
@@ -320,26 +252,6 @@ public class MountainTemp(Map map) : MapComponent(map)
             var equalizationRate = naturalRoom.NaturalEqualizationFactor;
             var targetTemp = naturalRoom.NaturalTemp;
 
-            /*
-            if( naturalRoom.controlledTemp != INVALID_CONTROL_TEMP ){
-                // Room has active controllers
-
-                // If( the control is cooler than the natural and the room is cooler than the natural and the room is hotter than the control)
-                // Or( the control is hotter than the natural and the room is hotter than the natural and the room is cooler than the control)
-                if( ( ( naturalRoom.controlledTemp < naturalRoom.naturalTemp )&&
-                        ( naturalRoom.room.Temperature < naturalRoom.naturalTemp )&&
-                        ( naturalRoom.room.Temperature > naturalRoom.controlledTemp ) )||
-                    ( ( naturalRoom.controlledTemp > naturalRoom.naturalTemp )&&
-                        ( naturalRoom.room.Temperature > naturalRoom.naturalTemp )&&
-                        ( naturalRoom.room.Temperature < naturalRoom.controlledTemp ) ) ){
-
-                    // Temperature inside of range, adjust slowly to control temp
-                    equalizationRate *= 0.25f;
-                    targetTemp = naturalRoom.controlledTemp;
-
-                }
-            }
-            */
 
             // Move the room towards the desired temp
             var tempDelta = Mathf.Abs(naturalRoom.Room.Temperature - targetTemp);
@@ -347,7 +259,7 @@ public class MountainTemp(Map map) : MapComponent(map)
             if (tempDelta > TemperatureDelta)
                 // Difference is too large, move it
             {
-                EqualizeTemperature(naturalRoom.Room, targetTemp, equalizationRate);
+                equalizeTemperature(naturalRoom.Room, targetTemp, equalizationRate);
             }
             else
                 // Difference is within tolerance, set it
@@ -364,7 +276,7 @@ public class MountainTemp(Map map) : MapComponent(map)
     /// <param name="room">Room.</param>
     /// <param name="destTemp">Destination temp.</param>
     /// <param name="equalizationRate"></param>
-    private void EqualizeTemperature(Room room, float destTemp, float equalizationRate)
+    private static void equalizeTemperature(Room room, float destTemp, float equalizationRate)
     {
         // Temperature delta
         var delta = Mathf.Abs(room.Temperature - destTemp);
