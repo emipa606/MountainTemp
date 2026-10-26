@@ -39,16 +39,16 @@ public class McmMountainTempMod : Mod
         return "Mountain Temp";
     }
 
-    public override void DoSettingsWindowContents(Rect rect)
+    public override void DoSettingsWindowContents(Rect inRect)
     {
         var originalFont = Text.Font;
 
         var descriptionLabel = "MountainTempMCMDescription".Translate();
-        var descriptionHeight = Text.CalcHeight(descriptionLabel, rect.width);
+        var descriptionHeight = Text.CalcHeight(descriptionLabel, inRect.width);
         var descriptionRect = new Rect(
             0,
             40,
-            rect.width,
+            inRect.width,
             descriptionHeight);
         doLabel(
             descriptionRect,
@@ -58,7 +58,7 @@ public class McmMountainTempMod : Mod
         var targetRect = new Rect(
             0,
             descriptionRect.y + descriptionRect.height + EntrySize,
-            rect.width,
+            inRect.width,
             EntrySize);
         doLabel(
             targetRect,
@@ -69,7 +69,7 @@ public class McmMountainTempMod : Mod
         var fixedRect = new Rect(
             0,
             targetRect.y + targetRect.height + InnerPadding,
-            rect.width,
+            inRect.width,
             EntrySize);
         doRadio(
             fixedRect,
@@ -86,7 +86,7 @@ public class McmMountainTempMod : Mod
         var tempRect = new Rect(
             0,
             fixedRect.y + fixedRect.height + InnerPadding,
-            rect.width,
+            inRect.width,
             EntrySize * 2);
         doSlider(
             tempRect,
@@ -104,7 +104,7 @@ public class McmMountainTempMod : Mod
         var seasonalRect = new Rect(
             0,
             tempRect.y + tempRect.height + EntrySize,
-            rect.width,
+            inRect.width,
             EntrySize);
         doRadio(
             seasonalRect,
@@ -123,7 +123,7 @@ public class McmMountainTempMod : Mod
         var annualRect = new Rect(
             0,
             seasonalRect.y + seasonalRect.height + InnerPadding,
-            rect.width,
+            inRect.width,
             EntrySize * 2);
         doRadio(
             annualRect,
@@ -139,14 +139,14 @@ public class McmMountainTempMod : Mod
         var updateLabelRect = new Rect(
             0,
             annualRect.y + annualRect.height + InnerPadding,
-            rect.width,
+            inRect.width,
             EntrySize);
         Widgets.Label(updateLabelRect, "MountainTempMCMUpdateSpeed".Translate(Settings.UpdateTicks));
 
         var updateSpeedRect = new Rect(
             0,
             updateLabelRect.y + updateLabelRect.height + InnerPadding,
-            rect.width,
+            inRect.width,
             EntrySize);
         Widgets.IntEntry(updateSpeedRect, ref Settings.UpdateTicks, ref intBuffer);
 
@@ -158,7 +158,7 @@ public class McmMountainTempMod : Mod
             var versionRect = new Rect(
                 0,
                 updateSpeedRect.y + updateSpeedRect.height + InnerPadding,
-                rect.width,
+                inRect.width,
                 EntrySize);
             GUI.contentColor = Color.gray;
             Widgets.Label(versionRect, "MountainTempMCMVersion".Translate(currentVersion));

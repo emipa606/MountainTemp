@@ -15,15 +15,11 @@ public struct NaturalRoom
     public float NaturalEqualizationFactor;
 
     public float NaturalTemp;
-    //public int controlledTemp;
 }
 
 [StaticConstructorOnStartup]
 public abstract class MountainTemp(Map map) : MapComponent(map)
 {
-    // Constant underground temperature
-    //public const float UNDERGROUND_TEMPERATURE = 0.0f;
-
     // Constant delta for setting temp
     private const float TemperatureDelta = 0.49f;
 
@@ -31,9 +27,6 @@ public abstract class MountainTemp(Map map) : MapComponent(map)
     private const float EqualizationFactor = 120.0f * 90.0f * 6f;
 
     private readonly bool enabled = map.Biome.defName != "BMT_EarthenDepths";
-
-    // Constant invalid control temp (no active temperature controllers)
-    //public const int InvalidControlTemp = -999999;
 
     // This will house all the rooms in the world which have
     // natural roofs
@@ -91,28 +84,15 @@ public abstract class MountainTemp(Map map) : MapComponent(map)
         // Get the outdoor temperature
         var outdoorTemp = GenTemperature.GetTemperatureAtTile(map.Tile);
 
-#if DEBUG
-            var debugDump = "FetchNaturalRooms:" +
-                "\n\toutdoorTemp: " + outdoorTemp +
-                "\n\tallRooms.Count: " + allRooms.Count;
-
-#endif
-
-        // Find all the coolers in the world
-        //var allCoolers = Find.ListerBuildings.AllBuildingsColonistOfClass<Building_Cooler>().ToList();
-
         // Iterate the rooms
         foreach (var room in allRooms)
         {
-            //float controlledTemp = 0f;
-            //int controlUnits = 0;
-
             // Open roof?  Not what we want
             try
             {
                 if (room.OpenRoofCount > 0)
                 {
-                    goto Skip_Room;
+                    continue;
                 }
 
                 // Get the cells which are contained in the room
@@ -121,19 +101,19 @@ public abstract class MountainTemp(Map map) : MapComponent(map)
                 // No cells, no want
                 if (roomCells.Count < 1)
                 {
-                    goto Skip_Room;
+                    continue;
                 }
 
                 // Make sure the roof is at least partly natural
                 if (!roomCells.Any(cell => cell.GetRoof(map).isNatural))
                 {
-                    goto Skip_Room;
+                    continue;
                 }
 
                 // Check for embrasures and fences, anything that transfers heat freely
                 if (room.BorderCells.Any(cell => cell.GetCover(map).def.fillPercent < 1))
                 {
-                    goto Skip_Room;
+                    continue;
                 }
 
                 // Create new natural room entry
@@ -163,12 +143,6 @@ public abstract class MountainTemp(Map map) : MapComponent(map)
                 // Now calculate percent of roof that is thick/thin/constructed
                 var thickFactor = thickCount / roofCount;
                 var thinFactor = thinCount / roofCount;
-                //var roofedFactor = 1.0f - thickFactor - thinFactor;
-                //if (roofedFactor < 0f)
-                //    // Handle rounding errors
-                //{
-                //    roofedFactor = 0f;
-                //}
 
                 // Factor for pushing heat
                 naturalRoom.NaturalEqualizationFactor = thickFactor + (thinFactor * 0.5f);
@@ -176,49 +150,18 @@ public abstract class MountainTemp(Map map) : MapComponent(map)
                 // Calculate new temp based on roof factors
                 var thickRate = thickFactor * TargetTemperature;
                 var thinRate = thinFactor * (outdoorTemp - TargetTemperature) * 0.25f;
-                //float roofedRate = roofedFactor * ( outdoorTemp - UNDERGROUND_TEMPERATURE ) * 0.5f;
 
                 // Assign the natural temp based on aggregate ratings
-                //naturalRoom.naturalTemp = thickFactor * UNDERGROUND_TEMPERATURE +
-                //    ( 1.0f - thickFactor ) * outdoorTemp;
-                naturalRoom.NaturalTemp = thickRate + thinRate; // + roofedRate;
-
-#if DEBUG
-                    /*
-                    debugDump += "\n\tID: " + room.ID +
-                        "\n\t\troomCells.Count: " + roomCells.Count +
-                        "\n\t\troofCount: " + roofCount +
-                        "\n\t\tCount thick/thin/man: " + thickCount + "/" + thinCount + "/" + ( roofCount - thickCount - thinCount ) +
-                        "\n\t\tFactor thick/thin/man: " + thickFactor + "/" + thinFactor + "/" + roofedFactor +
-                        "\n\t\tRate thick/thin/man: " + thickRate + "/" + thinRate + "/" + roofedRate +
-                        "\n\t\toutside.Temperature: " + outdoorTemp +
-                        "\n\t\troom.Temperature: " + naturalRoom.room.Temperature +
-                        "\n\t\tcontrolledTemp: " + naturalRoom.controlledTemp +
-                        "\n\t\tdesiredTemp: " + naturalRoom.naturalTemp;
-                    */
-#endif
+                naturalRoom.NaturalTemp = thickRate + thinRate;
 
                 // Add the natural room to the list
                 naturalRooms.Add(naturalRoom);
             }
             catch (Exception)
             {
-                // Exception only used in debug
-#if DEBUG
-                    debugDump += $"Got exception for room: {exception}";
-#endif
+                // ignored
             }
-
-            Skip_Room: ;
-            // We skipped this room, need to do it this way because
-            // using 'continue' in the controller loops will
-            // continue the controller loops and not the room loop
         }
-#if DEBUG
-            /*
-            Log.Message( debugDump );
-            */
-#endif
     }
 
     /// <summary>
@@ -289,7 +232,6 @@ public abstract class MountainTemp(Map map) : MapComponent(map)
         var change = (destTemp > room.Temperature ? movement : -movement) *
             (EqualizationFactor * equalizationRate) / room.CellCount;
         // Push some heat
-        //room.PushHeat( change );
         room.Temperature += change;
     }
 }
